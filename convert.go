@@ -63,6 +63,12 @@ func BytesToBase64(in []byte) string {
 	return out.String()
 }
 
+func XOR(a, b, c []byte) {
+	for x := 0; x < len(a); x++ {
+		c[x] = a[x] ^ b[x]
+	}
+}
+
 /*
 private static final String CODES = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
@@ -94,4 +100,4 @@ private static String base64Encode(byte[] in)       {
 
 	return out.toString();
 }
- */
+*/

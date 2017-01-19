@@ -21,3 +21,14 @@ func TestHexToBase64(t *testing.T) {
 		t.Errorf("\nExpected: %q\nActual:   %q", expected, actual)
 	}
 }
+
+func TestXOR(t *testing.T) {
+	a := HexToBytes("1c0111001f010100061a024b53535009181c")
+	b := HexToBytes("686974207468652062756c6c277320657965")
+	c := make([]byte, len(a))
+	XOR(a, b, c)
+	expected := HexToBytes("746865206b696420646f6e277420706c6179")
+	if !bytes.Equal(expected, c) {
+		t.Errorf("Fail")
+	}
+}
