@@ -95,8 +95,8 @@ func tripletToBase64(in []byte) (out []byte) {
 const base64Key = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 const base64Padding = '='
 
-func XOR(a, b, c []byte) {
-	for x := 0; x < len(a); x++ {
-		c[x] = a[x] ^ b[x % len(b)]
+func XOR(input, key, output []byte) {
+	for x := 0; x < len(input); x++ {
+		output[x] = input[x] ^ key[x%len(key)]
 	}
 }
