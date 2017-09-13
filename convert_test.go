@@ -51,3 +51,27 @@ func (this *ConvertFixture) TestXOR() {
 	expected := HexToBytes("746865206b696420646f6e277420706c6179")
 	this.So(c, should.Resemble, expected)
 }
+
+func (this *ConvertFixture) TestXOR_SingleCharacter() {
+	key := HexToBytes("68")
+	message := HexToBytes("1c0111001f010100061a024b53535009181c")
+	cipherText := make([]byte, len(message))
+	XOR(message, key, cipherText)
+
+	decrypted := make([]byte, len(message))
+	XOR(cipherText, key, decrypted)
+
+	this.So(decrypted, should.Resemble, message)
+}
+
+func (this *ConvertFixture) TestFindXORKey() {
+	cipherText := HexToBytes("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736")
+	for x := 0; x < 256; x++ {
+		key := []byte{byte(x)}
+		decrypted := make([]byte, len(cipherText))
+		XOR(cipherText, key, decrypted)
+		if string(decrypted) == "Cooking MC's like a pound of bacon" {
+			this.Println(string(key), string(decrypted), hex.EncodeToString(decrypted))
+		}
+	}
+}

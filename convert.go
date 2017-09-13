@@ -97,6 +97,6 @@ const base64Padding = '='
 
 func XOR(a, b, c []byte) {
 	for x := 0; x < len(a); x++ {
-		c[x] = a[x] ^ b[x]
+		c[x] = a[x] ^ b[x % len(b)]
 	}
 }
