@@ -33,71 +33,70 @@ func hexChar(c byte) byte {
 	return 0
 }
 
-const base64Key = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
-
-// See: https://en.wikipedia.org/wiki/Base64#Sample_Implementation_in_Java
 func BytesToBase64(in []byte) string {
+	if len(in) == 0 {
+		return ""
+	}
+
 	out := new(bytes.Buffer)
-	for i := 0; i < len(in); i += 3 {
-		b := (in[i] & 0xFC) >> 2
-		out.WriteByte(base64Key[b])
-		b = (in[i] & 0x03) << 4
-		if i+1 < len(in) {
-			b |= (in[i+1] & 0xF0) >> 4
-			out.WriteByte(base64Key[b])
-			b = (in[i+1] & 0x0F) << 2
-			if i+2 < len(in) {
-				b |= (in[i+2] & 0xC0) >> 6
-				out.WriteByte(base64Key[b])
-				b = in[i+2] & 0x3F
-				out.WriteByte(base64Key[b])
-			} else {
-				out.WriteByte(base64Key[b])
-				out.WriteByte('=')
-			}
-		} else {
-			out.WriteByte(base64Key[b])
-			out.WriteString("==")
-		}
+	x := 0
+
+	for ; x+3 < len(in); x += 3 {
+		triplet := in[x : x+3]
+		out.Write(tripletToBase64(triplet))
+	}
+
+	if x < len(in) {
+		remainder := in[x:]
+		out.Write(tripletToBase64(remainder))
 	}
 	return out.String()
 }
+
+func tripletToBase64(in []byte) (out []byte) {
+	out = make([]byte, 4)
+
+	out[0] = in[0] >> 2
+	out[0] = base64Key[out[0]]
+
+	if len(in) == 1 {
+		in = append(in, 0)
+		out[2] = base64Padding
+	}
+
+	out[1] = in[0]
+	out[1] = out[1] << 6
+	out[1] = out[1] >> 2
+	out[1] = out[1] + (in[1] >> 4)
+	out[1] = base64Key[out[1]]
+
+	if len(in) == 2 {
+		in = append(in, 0)
+		out[3] = base64Padding
+	}
+
+	if out[2] == 0 {
+		out[2] = in[1] << 4
+		out[2] = out[2] >> 2
+		out[2] = out[2] + in[2]>>6
+		out[2] = base64Key[out[2]]
+	}
+
+	if out[3] == 0 {
+		out[3] = in[2]
+		out[3] = out[3] << 2
+		out[3] = out[3] >> 2
+		out[3] = base64Key[out[3]]
+	}
+
+	return out
+}
+
+const base64Key = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+const base64Padding = '='
 
 func XOR(a, b, c []byte) {
 	for x := 0; x < len(a); x++ {
 		c[x] = a[x] ^ b[x]
 	}
 }
-
-/*
-private static final String CODES = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-
-private static String base64Encode(byte[] in)       {
-	StringBuilder out = new StringBuilder((in.length * 4) / 3);
-	int b;
-	for (int i = 0; i < in.length; i += 3)  {
-		b = (in[i] & 0xFC) >> 2;
-		out.append(CODES.charAt(b));
-		b = (in[i] & 0x03) << 4;
-		if (i + 1 < in.length)      {
-			b |= (in[i + 1] & 0xF0) >> 4;
-			out.append(CODES.charAt(b));
-			b = (in[i + 1] & 0x0F) << 2;
-			if (i + 2 < in.length)  {
-				b |= (in[i + 2] & 0xC0) >> 6;
-				out.append(CODES.charAt(b));
-				b = in[i + 2] & 0x3F;
-				out.append(CODES.charAt(b));
-			} else  {
-				out.append(CODES.charAt(b));
-				out.append('=');
-			}
-		} else      {
-			out.append(CODES.charAt(b));
-			out.append("==");
-		}
-	}
-
-	return out.toString();
-}
-*/
