@@ -3,6 +3,7 @@ package cryptopals
 import (
 	"bytes"
 	"log"
+	"strings"
 )
 
 func HexToBase64(hex string) string {
@@ -99,4 +100,12 @@ func XOR(input, key, output []byte) {
 	for x := 0; x < len(input); x++ {
 		output[x] = input[x] ^ key[x%len(key)]
 	}
+}
+
+func ScoreDecrypted(message string) float64 {
+	valid := 0
+	for _, c := range base64Key[:52] + " " {
+		valid += strings.Count(message, string(c))
+	}
+	return float64(valid) / float64(len(message))
 }
